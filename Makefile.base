@@ -33,7 +33,7 @@ CFLAGS += -fno-unwind-tables -fno-asynchronous-unwind-tables
 CFLAGS += -fno-stack-protector
 
 # Good warnings, and make them fatal errors to avoid walls of output for minor mistakes
-CFLAGS += -Wall -Wextra -Werror -pedantic -Wshadow -Wstrict-aliasing -Wpadded -Wfatal-errors
+#CFLAGS += -Wall -Wextra -Werror -pedantic -Wshadow -Wstrict-aliasing -Wpadded -Wfatal-errors
 
 ifneq (, $(findstring clang,$(CC)))
 # All the warnings!

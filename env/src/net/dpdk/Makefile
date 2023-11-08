@@ -34,7 +34,7 @@ $(RTE_SDK)/.installed:
 	git submodule update --checkout --init --force $(RTE_SDK)
 	# fix build with gcc 11
 	curl https://patches.dpdk.org/series/12380/mbox/ | patch -d $(RTE_SDK) -p1
-	$(MAKE) -C $(RTE_SDK) install T=$(RTE_TARGET) DESTDIR=. MAKE_PAUSE=n EXTRA_CFLAGS=-Wno-error
+	$(MAKE) -C $(RTE_SDK) -j install T=$(RTE_TARGET) DESTDIR=. MAKE_PAUSE=n EXTRA_CFLAGS=-Wno-error
 	touch $@
 $(RTE_SDK)/mk/rte.vars.mk $(RTE_SDK)/mk/rte.extapp.mk: $(RTE_SDK)/.installed
 	touch --reference $< $@
