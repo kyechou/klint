@@ -29,7 +29,7 @@ void nf_handle(struct net_packet* packet)
 	struct net_ipv4_header* ipv4_header;
 	struct net_tcpudp_header* tcpudp_header;
 	if (!net_get_ether_header(packet, &ether_header) || !net_get_ipv4_header(ether_header, &ipv4_header) || !net_get_tcpudp_header(ipv4_header, &tcpudp_header)) {
-		os_debug("Not TCP/UDP over IPv4 over Ethernet");
+		os_debug("Not TCP/UDP over IPv4 over Ethernet\n");
 		return;
 	}
 
@@ -41,7 +41,8 @@ void nf_handle(struct net_packet* packet)
 				    .dst_port = tcpudp_header->src_port,
 				    .protocol = ipv4_header->next_proto_id};
 		if (!flow_table_has_external(table, packet->time, &flow)) {
-			os_debug("Unknown flow");
+			os_debug("Unknown (inverted) flow [ #x%x:%u -> #x%x:%u (proto: %u) ] : dropped\n", ipv4_header->dst_addr, tcpudp_header->dst_port, ipv4_header->src_addr,
+				 tcpudp_header->src_port, ipv4_header->next_proto_id);
 			return;
 		}
 	} else {
@@ -53,8 +54,12 @@ void nf_handle(struct net_packet* packet)
 		    .protocol = ipv4_header->next_proto_id,
 		};
 
+		os_debug("Learning flow [ #x%x:%u -> #x%x:%u (proto: %u) ]\n", ipv4_header->src_addr, tcpudp_header->src_port, ipv4_header->dst_addr, tcpudp_header->dst_port,
+			 ipv4_header->next_proto_id);
 		flow_table_learn_internal(table, packet->time, &flow);
 	}
 
+	os_debug("fwd packet [ #x%x:%u -> #x%x:%u (proto: %u) ] to intf %d\n", ipv4_header->src_addr, tcpudp_header->src_port, ipv4_header->dst_addr, tcpudp_header->dst_port,
+		 ipv4_header->next_proto_id, 1 - packet->device);
 	net_transmit(packet, 1 - packet->device, 0);
 }

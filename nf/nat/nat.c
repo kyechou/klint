@@ -32,7 +32,7 @@ void nf_handle(struct net_packet* packet)
 	struct net_ipv4_header* ipv4_header;
 	struct net_tcpudp_header* tcpudp_header;
 	if (!net_get_ether_header(packet, &ether_header) || !net_get_ipv4_header(ether_header, &ipv4_header) || !net_get_tcpudp_header(ipv4_header, &tcpudp_header)) {
-		os_debug("Not TCP/UDP over IPv4 over Ethernet");
+		os_debug("Not TCP/UDP over IPv4 over Ethernet\n");
 		return;
 	}
 
@@ -40,10 +40,12 @@ void nf_handle(struct net_packet* packet)
 		struct flow internal_flow;
 		if (flow_table_get_external(table, packet->time, tcpudp_header->dst_port, &internal_flow)) {
 			if ((internal_flow.dst_ip != ipv4_header->src_addr) || (internal_flow.dst_port != tcpudp_header->src_port) || (internal_flow.protocol != ipv4_header->next_proto_id)) {
-				os_debug("Spoofing attempt");
+				os_debug("Spoofing attempt\n");
 				return;
 			}
 
+			os_debug("external flow [ #x%x:%u -> #x%x:%u (proto: %u) ] mapped to internal #x%x:%u\n", ipv4_header->src_addr, tcpudp_header->src_port, ipv4_header->dst_addr,
+				 tcpudp_header->dst_port, ipv4_header->next_proto_id, internal_flow.src_ip, internal_flow.src_port);
 			net_packet_checksum_update_32(ipv4_header, ipv4_header->dst_addr, internal_flow.src_ip, true);
 			net_packet_checksum_update(ipv4_header, tcpudp_header->dst_port, internal_flow.src_port, false);
 			ipv4_header->dst_addr = internal_flow.src_ip;
@@ -63,10 +65,12 @@ void nf_handle(struct net_packet* packet)
 
 		uint16_t external_port;
 		if (!flow_table_get_internal(table, packet->time, &flow, &external_port)) {
-			os_debug("No space for the flow");
+			os_debug("No space for the flow\n");
 			return;
 		}
 
+		os_debug("internal flow [ #x%x:%u -> #x%x:%u (proto: %u) ] mapped to external #x%x:%u\n", ipv4_header->src_addr, tcpudp_header->src_port, ipv4_header->dst_addr,
+			 tcpudp_header->dst_port, ipv4_header->next_proto_id, external_addr, external_port);
 		net_packet_checksum_update_32(ipv4_header, ipv4_header->src_addr, external_addr, true);
 		net_packet_checksum_update(ipv4_header, tcpudp_header->src_port, external_port, false);
 		ipv4_header->src_addr = external_addr;

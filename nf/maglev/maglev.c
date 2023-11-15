@@ -43,7 +43,7 @@ void nf_handle(struct net_packet* packet)
 	struct net_ipv4_header* ipv4_header;
 	struct net_tcpudp_header* tcpudp_header;
 	if (!net_get_ether_header(packet, &ether_header) || !net_get_ipv4_header(ether_header, &ipv4_header) || !net_get_tcpudp_header(ipv4_header, &tcpudp_header)) {
-		os_debug("Not TCP/UDP over IPv4 over Ethernet");
+		os_debug("Not TCP/UDP over IPv4 over Ethernet\n");
 		return;
 	}
 
@@ -56,6 +56,9 @@ void nf_handle(struct net_packet* packet)
 	    .src_ip = ipv4_header->src_addr, .dst_ip = ipv4_header->dst_addr, .src_port = tcpudp_header->src_port, .dst_port = tcpudp_header->dst_port, .protocol = ipv4_header->next_proto_id};
 	device_t backend;
 	if (balancer_get_backend(balancer, &flow, packet->time, &backend)) {
+		os_debug("Forward to backend: %u\n", backend);
 		net_transmit(packet, backend, 0);
+	} else {
+		os_debug("There are no backends.\n");
 	}
 }
