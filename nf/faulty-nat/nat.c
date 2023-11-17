@@ -46,8 +46,8 @@ void nf_handle(struct net_packet* packet)
 
 			os_debug("external flow [ #x%x:%u -> #x%x:%u (proto: %u) ] mapped to internal #x%x:%u\n", ipv4_header->src_addr, tcpudp_header->src_port, ipv4_header->dst_addr,
 				 tcpudp_header->dst_port, ipv4_header->next_proto_id, internal_flow.src_ip, internal_flow.src_port);
-			// net_packet_checksum_update_32(ipv4_header, ipv4_header->dst_addr, internal_flow.src_ip, true);
-			// net_packet_checksum_update(ipv4_header, tcpudp_header->dst_port, internal_flow.src_port, false);
+			net_packet_checksum_update_32(ipv4_header, ipv4_header->dst_addr, internal_flow.src_ip, true);
+			net_packet_checksum_update(ipv4_header, tcpudp_header->dst_port, internal_flow.src_port, false);
 			ipv4_header->dst_addr = internal_flow.src_ip;
 			tcpudp_header->dst_port = internal_flow.src_port;
 		} else {
@@ -71,8 +71,8 @@ void nf_handle(struct net_packet* packet)
 
 		os_debug("internal flow [ #x%x:%u -> #x%x:%u (proto: %u) ] mapped to external #x%x:%u\n", ipv4_header->src_addr, tcpudp_header->src_port, ipv4_header->dst_addr,
 			 tcpudp_header->dst_port, ipv4_header->next_proto_id, external_addr, external_port);
-		// net_packet_checksum_update_32(ipv4_header, ipv4_header->src_addr, external_addr, true);
-		// net_packet_checksum_update(ipv4_header, tcpudp_header->src_port, external_port, false);
+		net_packet_checksum_update_32(ipv4_header, ipv4_header->src_addr, external_addr, true);
+		net_packet_checksum_update(ipv4_header, tcpudp_header->src_port, external_port, false);
 		ipv4_header->src_addr = external_addr;
 		tcpudp_header->src_port = external_port;
 	}
