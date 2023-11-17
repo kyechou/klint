@@ -51,7 +51,7 @@ void nf_handle(struct net_packet* packet)
 			ipv4_header->dst_addr = internal_flow.src_ip;
 			tcpudp_header->dst_port = internal_flow.src_port;
 		} else {
-			os_debug("Unknown flow");
+			os_debug("Unknown flow\n");
 			return;
 		}
 	} else {
