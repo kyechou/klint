@@ -1,5 +1,6 @@
 #include "balancer.h"
 #include "net/skeleton.h"
+#include "os/clock.h"
 #include "os/config.h"
 #include "os/log.h"
 #include "os/time.h"
@@ -34,6 +35,13 @@ bool nf_init(device_t _devices_count)
 	}
 
 	balancer = balancer_alloc(flow_capacity, flow_expiration_time, backend_capacity, backend_expiration_time, cht_height);
+
+	// Upon launching, automatically assume all backends are alive initially.
+	time_t time = os_clock_time_ns();
+	for (device_t backend = 0; backend < devices_count - 1; ++backend) {
+		balancer_process_heartbeat(balancer, backend, time);
+	}
+
 	return true;
 }
 
