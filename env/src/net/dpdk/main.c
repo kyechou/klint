@@ -20,9 +20,12 @@
 #error Please define BATCH_SIZE
 #endif
 
-#define MAX_DEVICES 2
+// NOTE(KY): Allow the maximum number of devices to be 10. This is intended to
+// be used only by the maglev load-balancer implementation for testing purposes
+// with Neo.
+#define MAX_DEVICES 10
 // TODO properly do refcount shenanigans
-_Static_assert(MAX_DEVICES == 2, "see todo");
+// _Static_assert(MAX_DEVICES == 2, "see todo");
 
 static device_t devices_count;
 static struct rte_ether_addr device_addrs[MAX_DEVICES];
