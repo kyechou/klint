@@ -1,0 +1,13 @@
+diff --git a/buildtools/pmdinfogen/pmdinfogen.c b/buildtools/pmdinfogen/pmdinfogen.c
+index a68d1ea999..cd35738cc7 100644
+--- a/buildtools/pmdinfogen/pmdinfogen.c
++++ b/buildtools/pmdinfogen/pmdinfogen.c
+@@ -349,7 +349,7 @@ static int locate_pmd_entries(struct elf_info *info)
+ 	info->drivers = NULL;
+ 
+ 	do {
+-		new = calloc(sizeof(struct pmd_driver), 1);
++		new = calloc(1, sizeof(struct pmd_driver));
+ 		if (new == NULL) {
+ 			fprintf(stderr, "Failed to calloc memory\n");
+ 			return -1;
